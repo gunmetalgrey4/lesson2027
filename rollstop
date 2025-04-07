@@ -1,0 +1,531 @@
+
+#### grep
+```
+www.debuggex.com
+
+#Must remember to put regular expression between single quotes
+
+#Example:
+egrep '^([A-Z0-9a-z]{2}(:|-|.)){5}([A-Z0-9a-z]{2}$)' <name of file>
+###################################################################
+
+#this will search all files in the pwd for lines that do not contain the string “foo”
+grep -v foo *
+
+#matches on the word “some”,i.e. some not something or awesome
+grep -w some *.txt
+
+#ignores case, i.e. some or Some
+grep -i some *.txt
+
+#prints the line number of the match, 26:Installing glibc-common-2.12 1.x86_64
+grep -n glibc install.log
+
+-r – recursive
+-A# - display # lines after the matching line
+-B# - display # lines before the matching line
+-C# - display # around (before and after) the matching line
+-c – count the number of matching lines
+-o – print only matches, not the whole line
+“.” matches any single character
+[] matches a single character in the specified list
+To negate a character, or list of characters, use ^
+[^0-9] will cause the expression to ignore numerals
+Anchors
+^ Match the start of a line
+$ Match the end of a line
+“*” match the preceding pattern any number of times, including not match
+“?” match the preceding pattern once or not at all
+“+” match the preceding pattern once or more
+{} match the preceding pattern a specific number of times, minimum number of times, maximum number of times, or a combination of minimum and maximum. {3} {3,}{,3}{1,3}
+
+#Show all lines containing “root”
+grep root /etc/passwd
+
+#Show only lines with “root” at the beginning
+grep ^root /etc/passwd
+
+#Show lines that contain “hal” in either case
+grep -i hal /etc/passwd
+
+#Show lines that contain only ‘hal’, in either case
+grep -iw hal /etc/passwd
+
+#Show only the lines that do not contain ‘nologin’
+grep -v nologin /etc/passwd
+
+#Regex for MAC address
+egrep '^([A-F0-9a-f]{2}(:|-|.)){5}([A-F0-9a-f]{2}$)'
+
+^([A-Z0-9a-z]{2}(:|-|.)){5}([A-Z0-9a-z]{2}$)
+
+#IP Address
+(([0-9]{1,3}.){3}[0-9]{1,3}$)
+
+#Dates
+#01/01/1977
+((\d{2}/){2}\d{4}$)
+#Jan 01, 1977
+([A-Za-z]{3}\s\d{2},\s\d{4})
+#January 01, 1977
+([A-Za-z]+\s\d{2},s\d{4})
+#Jan. 01, 1977
+egrep '([A-Za-z]{3}.\s[0-9]{2},\s[0-9]{4})' grepdata.txt
+
+#Phone Numbers
+# (910) 243-1332
+(\(\d{3}\)\s\d{3}\-\d{4})
+(\([0-9]{3}\)\s[0-9]{3}\-[0-9]{4})
+# 910-243-1332
+((\d{3}-){2}\d{4}$)
+# 910.243.1332
+((\d{3}.){2}\d{4}$)
+#Phone number with extenstion 910-243-1332 x1111
+((\d{3}-){2}\d{4}(\s)?(x|X)\d{4}$)
+#or
+egrep '(x|X)[0-9]{4}' grepdata.txt
+
+#ZipCode
+# 11111-1111
+((\d{5})-\d{4})
+# 11111
+(\d{5})
+# 11111 or 11111-1111
+((\d{5})(-(\d{4}))?)
+
+#EmailAddress
+((\w+)(.|-)@(\w+.)(\w+.)(com|net|org|mil|gov|edu))
+
+#WebSite (will also match full email address)
+((\w+):(//|\\\\)(\w+.)+(com|net|org|mil|gov|edu|lab)$)
+((\w+.)+(com|net|org|mil|gov|edu|lab)$)
+#Website only (NO EMAIL ADDRESS)
+egrep '((\w+.)+(com|net|org|mil|gov|edu|lab)$)' scratch | egrep -v '@'
+#ByIPAddress and Port
+((\w+):(//|\\\\)((\d{1,3}.){3})(\d{1,3})(:\d+$))
+
+
+#use sed to match/replace multiple patterns and send results to other file
+sed -e 's/white/green/g' colors > junk  -e 's/red/green/g' junk  > junk
+
+cat messages | grep Thanos
+
+cat messages | grep -v Thanos
+
+#grep for specific complete word
+cat messages | grep -w Neo
+
+#word, insensitive
+cat messages | grep -w -i login
+
+#line number
+cat students.txt | grep -n -i yoda
+
+#recursive grep
+grep -r wordtofind
+
+#1 line after 
+cat students.txt | grep -A1 Forrest
+
+#1 line before
+cat students.txt | grep -B1 Forrest
+
+#both before and after
+cat students.txt | grep -C1 Forrest
+
+#matching instances
+cat students.txt | grep -c Chewbacca
+
+#prints instances out
+cat students.txt | grep -o Chewbacca
+
+#line numbers for Chewbacca, cutting on :
+cat students.txt | grep -no Chewbacca | cut -d ":" -f 1
+
+#lines start with D
+cat students.txt | grep ^[D]
+
+#lines end with 4
+cat students.txt | grep 4$
+
+#find V, and anything with V and everything inbetween another V
+cat students.txt | egrep V*V
+
+#find Ka but also serach for K
+cat students.txt | egrep Ka?
+
+#find Sh that has characters after it
+cat students.txt | egrep Sh+
+
+#find 2 n's next to each other
+cat students.txt | egrep n{2}
+
+#find sora or et
+cat students.txt | egrep 'Sora|ET'
+
+#find login or accepted
+cat messages | egrep -i 'LOGIN|ACCEPTED'
+
+#filter for lines with spaces
+cat messages | egrep '\s'
+
+#show lines containing root
+cat /etc/passwd | egrep -w 'root'
+
+#lines with root at beginning
+cat /etc/passwd | egrep ^'root'
+egrep '^([A-F0-9a-f]{2}(:|-|.)){5}([A-F0-9a-f]{2}$)'
+#contain hal in upper or lower
+cat /etc/passwd | egrep -i 'hal'
+
+#that only contain hal
+cat /etc/passwd | egrep -iw 'hal'
+
+#lines that dont contain nologin
+cat /etc/passwd | egrep -v 'nologin'
+
+```
+
+#### awk
+```
+#reformat file to allow for awk to be used 
+cat file.txt | paste - - - - - - | awk '{print $1,$2,$3}'
+
+#Prints first field, based on a deliminator of :, of the file /etc/passwd
+awk -F: ‘{print $1}’ /etc/passwd
+
+#Print all lines containing “abcde” in file
+awk ‘/abcde/’ file
+
+gawk ‘pattern {action}’ filename
+
+#If field 3 is 22 gawk will print the entire line
+gawk ‘$3 == 22 {print $0}’ somefile.txt
+
+#field 3 starts with 1, 2, or 3
+gawk '$3 ~ /^[1-3]/' filename.txt
+|| /^[1-3]/
+|| /ABC/
+
+#print 1/2/4
+cat messages | awk '{print $1,$2,$4}' 
+
+#if field 2 = 28, print the line ($0)
+cat messages | gawk '$2 == 28 {print $0}'
+
+#print everything before first :
+cat /etc/passwd | awk -F: '{print $1}'
+
+
+```
+#### find
+```
+find / -iname "filename"
+
+find . -type f -exec ls -l {} +
+
+find . -type f | xargs ls -l
+
+```
+
+
+#### find
+find . -type f -exec ls -l {} +
+Command line is built by appending each selected file name at the end ({}+)
+Within the -exec portion, an argument of {} means "insert the file name here". So if the files were "foo" and "bar" it would execute "ls -l foo" then "ls -l bar"
+
+find . -type f | xargs ls -l
+The xargs command, when combined with other commands like find, uses the output of the first command as an argument
+#### zip
+```
+zip <name of zip file>.zip <files to be compressed>
+
+unzip <name of zip file>.zip
+```
+
+#### tar
+```
+tar cvf <name of archive>.tar <files to put in archive>
+
+tar xvf <name of archive>.tar
+
+tar cvfz <name of archive>.tar.gz <files to put in archive>
+```
+#### gzip
+```
+gzip <files to compress>
+
+gunzip <compressed files>.gz
+
+gzip -d <compressed files>.gz
+```
+#### bzip2
+```
+bzip2 <name of file/files to compress>
+
+bunzip2 <name of file/files to decompress>.bz2
+
+bzip2 -d <name of file/files to decompress>.bz2
+```
+#### xz
+```
+xz <file/files to compress>
+
+unxz <compressed file>.xz
+
+xz -d <compressed file>.xz
+```
+
+#### busybox
+```
+busybox [function] [arguments]
+```
+#### cut
+```
+using: /usr/local/xbin/user/training/messages||students.txt
+
+#field 2, on delimiter ,
+cut -d ',' -f 2 students.txt
+
+#field 1, on delimiter [
+cut -d "[" -f 1 messages
+
+#take the above and delimit on spaces/field 5
+cut -d "[" -f 1 messages | cut -d ' ' -f 5
+
+#delimit on [, delimit on " ", list alphabetically/only one instance
+cut -d "[" -f 1 messages | cut -d ' ' -f 5 | sort -u (or uniq)
+
+#last 2 lines
+cut -d "[" -f 1 messages | cut -d ' ' -f 5 | sort -u | tail -n 2
+
+#first 3 lines
+cut -d "[" -f 1 messages | cut -d ' ' -f 5 | sort -u | head -n 3
+
+
+
+
+
+
+```
+#### sed
+```
+#replace mufasa with muffffasa
+cat students.txt | sed 's/Mufasa/Mufffffasa/g'
+
+#to write changes
+cat students.txt | sed -i 's/Mufasa/Mufffffasa/g'
+
+
+```
+
+#### tcpdump
+```
+tcpdump -i eth1.609 -nnlvve -s 1514 not proto eigrp
+
+tcpdump -i eth1.609 net 10.3.99.0/24 and net 10.3.101.0/24
+
+tcpdump -i eth1.609 net 10.3.99.0/24 and not host 10.3.99.205
+
+tcpdump -i eth1.609 net and not ‘(10.3.99.200 or 10.3.99.205)’
+
+tcpdump -i eth1.609 -nnlvv -s 1514
+	-i (specify the interface you want to capture on)
+	-nnlvv
+		nn (don’t resolve host names or port names)
+		l (line buffered, as it gets a line, it displays a line)
+		vv (very verbose output)
+	-s 1514 (specifies the snap length which will grab the entire ethernet header)
+	
+tcpdump -i eth0 -nnlvv -s 1514 net 192.168.100.0/24
+	Display traffic related to specified network
+
+tcpdump -i eth0 -nnlvv -s 1514 -w /tmp/dump.pcap
+	Write traffic to specified file
+
+tcpdump -r /tmp/dump.pcap
+	Read specified file
+
+tcpdump -i eth0 -nnlvv -s 1514 -w - | tee /tmp/dump.pcap | tcpdump –lnr -
+	-w – tells tcpdump to write binary data to stdout
+	tee writes the binary data to a file and to its own stdout
+	-r – tells the second tcpdump to get its data from its stdin
+
+tcpdump -i eth0 -nnlvv -s 1514 host 10.3.99.115 and port 445
+	Display traffic for host 10.3.99.115 and port 445 (match both conditions)
+
+tcpdump -i eth0 -nnlvv -s 1514 not arp or not icmp
+	Don’t display arp or icmp traffic
+
+tcpdump -i eth0 -nnlvv -s 1514 not src 192.168.198.1 and not arp
+	Don’t display traffic from source IP 192.168.198.1 and not arp (both conditions must match)
+
+tcpdump -i eth0 -nnlvve -s 1514 udp port 5200 or udp port 5300 or udp port 5400
+	Display hardware address and display udp ports 5200 or 5300 or 5400
+
+tcpdump -nnlvv -i eth1.117 host 10.3.99.205 and tcp portrange 6000-7000
+	Port range filter
+
+tcpdump -s 1514 -nnlv 'not (stp or proto 88 or udp port 520 or port 123 or arp or 'ether[20:2] == 0x2000' or 'ether[20:2] == 0x2004')'
+```
+#### hping
+```
+#-c, --count <#>
+#Hping sends packets continually until you stop it. Use the -c option with an #interger argument to produce a specific number of packets.
+#send 1 fuckin syn packet to .205 port 80
+	hping -c 1 -S -p 80 10.3.99.205
+	
+#-I, --interface <interface name>
+#Select packet egress interface
+#By default, hping will use connected interfaces for local destinations and the #configured gateway for remote destinations.
+
+	hping -c 1 -S -I ens162 -p 80 10.3.99.205
+
+#-S = Set SYN flag in packet.
+#-nqc 1 = <no dns lookup><quiet,summary only><count>
+#-I eth1.113 set the exiting interface for generated packets
+#10.3.99.205 = destination host 
+#-p 80 = destination port
+
+	hping3 -S -nqc 1 -I eth1.113 10.3.99.205 -p 80
+
+#-2 = Use UDP protocol
+
+	hping3 -2 -nc 1 10.3.99.205 -p 53
+
+#spoof traffic from dns server, -k keep from incrementing
+
+	hping -c 1 -I ens1.117 10.3.117.100 -a DNSSERVERIP -s 53 -k
+
+hping3 -S -nc 5 -I eth1.117 10.3.99.205 -p 80
+hping3 -S -nc 5 10.3.99.205 -p 80
+hping3 -2 -nc 5 10.3.99.205 -p 53
+hping3 -S -nc 5 10.3.99.205 -p 21
+```
+#### iptables
+```
+#################################################################################
+Iptables Rule Standards: AT A MINIMUM, A RULE MUST CONTAIN:
+	A known IP address
+		Determined from security policy
+	A known port
+		Exceptions for loopback rule and ICMP
+	A protocol
+		Required if matching on one or more ports.
+		
+#################################################################################
+
+#list iptables rules
+cat /etc/sysconfig/iptables
+
+#Use these statements as needed to allow traffic to the loopback interface:
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+iptables -I INPUT 1 --dport 80 -p tcp -i eth1 -j ACCEPT
+iptables -A INPUT -p tcp -s 192.168.1.100 -dport 22 -m state -state NEW -j ACCEPT
+iptables -A OUTPUT -m state -state NEW,ESTABLISHED,RELATED -j ACCEPT
+
+iptables -N LOGDROP
+iptables -A LOGDROP -j LOG
+iptables -A LOGDROP -j DROP
+iptables -A INPUT -j LOGDROP
+
+iptables -A OUTPUT -p icmp -icmp-type echo-request -j ACCEPT
+iptables -A INPUT -p icmp -icmp-type echo-reply -j ACCEPT
+
+iptables -A FORWARD -s 0/0 -i eth0 -d 192.168.1.58 -o eth1 -p TCP --sport 1024:65535 -m multiport -dport 80,443 -j ACCEPT
+iptables -A FORWARD -d 0/0 -i eth1 -s 192.168.1.58 -o eth0 -p TCP -m state -state ESTABLISHED -j ACCEPT 
+iptables -A OUTPUT -m state -state NEW,ESTABLISHED,RELATED -j ACCEPT
+
+
+#################################################################################
+#default policy
+#iptables -P <BUILT-IN CHAIN>  <DROP||ACCEPT>
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -p FORWARD ACCEPT
+
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -p FORWARD DROP
+
+#accept loopback traffic
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+#add comment to rules
+#at the end of a rule
+-m comment --comment "ssh AP to FIREWALL"
+
+#on firewall
+#allow AP ssh traffic to firewall
+iptables -A INPUT -s 10.3.117.100 -p tcp --dport 22 -d 192.168.22.22 -j ACCEPT
+
+#forwarding rule for ssh traffic from AP to hidden subnet                        
+#on firewall, going to a hidden machine   #-d "protect host"
+iptables -A FORWARD -p tcp -s 10.3.117.100 -d 172.16.22.22 --dport 22 
+
+#forwarding rules 
+iptables -A FORWARD -s protected -i intonfirewall -d destination -o backsideintoffirewall -p tcp --dport 23 -j ACCEPT
+
+#reverse the above for comms
+iptables -A FORWARD -d protected -o intonfirewall -s destination -i backsideintoffirewall -p tcp --dport 23 -j ACCEPT
+
+#hitting a webserver (DNAT)
+#rules  made on the firewall
+#            [AP]------[FW]------[WEB]
+#           .100      192...22   172...22
+iptables -t nat -A PREROUTING -p tcp --dport 80 -d 192.168.22.22 -j DNAT -todest 172.16.22.22
+iptables -A FORWARD -p tcp -d 172.16.22.22 --dport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -s 172.16.22.22 --sport 80 -j ACCEPT
+
+
+#################################################################################
+Setting up PE's/exam
+#################################################################################
+
+#ping destination
+tracepath IPADDRESS
+
+[root@ap scripts]# tracepath 192.168.22.22
+ 1?: [LOCALHOST]                                         pmtu 1500
+ 1:  gateway                                               0.321ms 
+ 1:  gateway                                               0.240ms 
+ 2:  10.3.117.193                                          0.430ms asymm  1 
+ 3:  192.168.22.22                                         0.648ms !H
+     Resume: pmtu 1500
+
+#add route to hidden subnet via the vyos router at #2
+[root@ap scripts]# ip r a 172.16.22.0/24 via 10.3.117.193
+
+#check ip forwarding enable
+[root@firewall ~]# cat /proc/sys/net/ipv4/ip_forward
+
+#echo 1 > /proc/sys/net/ipv4/ip_forward
+
+#stop firewalld
+[root@firewall ~]# systemctl stop firewalld
+
+#FW allow telnet
+iptables -A INPUT -s 10.3.117.100 -d 192.168.22.22 -p tcp --dport 23 -j ACCEPT
+#test 
+hping -S -p 23 -c 1 192.168.22.22
+
+#inst. ssh to FW 
+iptables -A INPUT -s 10.3.115.100 -d 192.168.22.22 -p tcp --dport 22 -j ACCEPT -m comment --comment "Inst. ssh to FW"
+
+#dnat
+iptables -t nat -I PREROUTING -p tcp --dport 80 -d 192.168.22.22 -j DNAT --to-dest 172.17.5.10
+iptables -A FORWARD -p tcp --dport 80 -d 172.17.5.10 -j ACCEPT
+iptables -A FORWARD -p tcp --sport 80 -s 172.17.5.10 -j ACCEPT
+
+#snat
+#log packet: iptables -t nat -I POSTROUTING 1 -p tcp -s 172.17.5.10 -s 10.3.117.240 --port 23 --syn -j LOG --log-prefix "SNAT SOMETHING"
+
+iptables -t nat -A POSTROUTING -p tcp --dport 23 -s 172.17.5.10 -d 10.3.117.240 -j SNAT --to 192.168.22.22
+iptables -A FORWARD -p tcp --dport 23 -d 10.3.117.240 -j ACCEPT
+iptables -A FORWARD -p tcp --sport 23 -s 10.3.117.240 -j ACCEPT
+
+iptables -A FORWARD -p tcp --dport 23 -d 172.17.5.10 -j ACCEPT
+iptables -A FORWARD -p tcp --sport 23 -s 172.17.5.10 -j ACCEPT
