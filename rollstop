@@ -1,1 +1,42 @@
 
+#!/bin/bash
+
+# Set interface and NFS values
+INTERFACE="eth1.110"
+NFS_SERVER="10.3.99.206:/nfs-share"
+MOUNT_POINT="/mnt/nfs"
+
+# === Interface Status Check ===
+echo "[INFO] Checking interface: $INTERFACE"
+if ip link show "$INTERFACE" | grep -q "state UP"; then
+    echo "[OK] $INTERFACE is already up."
+else
+    echo "[INFO] $INTERFACE is down. Bringing it up..."
+    sudo ip link set "$INTERFACE" up
+    echo "[OK] $INTERFACE started."
+fi
+
+# === Launch xterm with log viewer ===
+echo "[INFO] Launching xterm to monitor /var/log/messages..."
+xterm -bg black -fg green -geometry 80x25+0+600 -sb -sl 10000 -e "tail -f /var/log/messages" &
+
+# === Mount NFS Share ===
+echo "[INFO] Checking NFS mount at $MOUNT_POINT"
+if mountpoint -q "$MOUNT_POINT"; then
+    echo "[OK] NFS share is already mounted."
+else
+    echo "[INFO] NFS not mounted. Mounting now..."
+    sudo mkdir -p "$MOUNT_POINT"
+    sudo mount -t nfs "$NFS_SERVER" "$MOUNT_POINT"
+    if [[ $? -eq 0 ]]; then
+        echo "[OK] NFS mounted successfully."
+    else
+        echo "[ERROR] Failed to mount NFS share." >&2
+    fi
+fi
+
+# === Launch Firefox in background ===
+echo "[INFO] Launching Firefox..."
+/usr/local/bin/firefox -geometry 1045x983+-10+19 & disown
+
+echo "[DONE] Script completed."
